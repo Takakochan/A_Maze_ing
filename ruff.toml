@@ -1,0 +1,63 @@
+line-length = 79
+preview = true
+
+# https://docs.astral.sh/ruff/settings/#format
+[format]
+docstring-code-format = true
+
+# https://docs.astral.sh/ruff/settings/#lint
+[lint]
+select = [
+  "I",   # isort
+  "E",   # pycodestyle
+  "F",   # Pyflakes
+  "PL",  # Pylint
+  "UP",  # pyupgrade
+  "RUF", # Ruff-specific rules
+
+  "ANN", # flake8-annotations
+  "S",   # flake8-bandit
+  "BLE", # flake8-blind-except
+  "FBT", # flake8-boolean-trap
+  "B",   # flake8-bugbear
+  "A",   # flake8-builtins
+  "COM", # flake8-commas
+  "C4",  # flake8-comprehensions
+  "EXE", # flake8-executable
+  "ISC", # flake8-implicit-str-concat
+  "ICN", # flake8-import-conventions
+  "LOG", # flake8-logging
+  "G",   # flake8-logging-format
+  "PT",  # flake8-pytest-style
+  "Q",   # flake8-quotes
+  "RSE", # flake8-raise
+  "RET", # flake8-return
+  "SLF", # flake8-self
+  "SIM", # flake8-simplify
+  "TID", # flake8-tidy-imports
+  "TC",  # flake8-type-checking
+  "ARG", # flake8-unused-arguments
+]
+ignore = [
+  "DOC", # pydoclint
+
+  "D",    # pydocstyle
+  "D203", # incorrect-blank-line-before-class
+  # "D211", # no-blank-line-before-class
+  "D212", # multi-line-summary-first-line
+  # "D213", # multi-line-summary-second-line
+
+  "EM", # flake8-errmsg
+
+  "FIX",    # flake8-fixme
+  "FIX002", # resolve todo
+
+  "TD",    # flake8-todos
+  "TD003", # missing link for todo
+]
+
+[lint.pylint]
+allow-magic-value-types = ["str", "bytes", "int"]
+
+[lint.flake8-boolean-trap]
+extend-allowed-calls = ["returns.result.Success", "returns.result.Failure"]

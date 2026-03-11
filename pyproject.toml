@@ -1,0 +1,14 @@
+[project]
+name = "A-Maze-ing"
+version = "0.1.0"
+description = "Generates and solves a perfect maze."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+  "flake8>=7.3.0",
+  "mypy>=1.19.1",
+  "numpy>=2.4.3",
+  "returns>=0.26.0",
+  "ruff>=0.15.5",
+  "ty>=0.0.21",
+]
