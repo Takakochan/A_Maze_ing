@@ -114,7 +114,7 @@ class Config:
     perfect: bool
 
     @classmethod
-    def from_file(cls, filepath: str) -> Self | None:
+    def from_file(cls, filepath: str) -> Self:
         try:
             with open(filepath, encoding="utf-8") as file:
                 config: dict[str, Any] = {}
@@ -128,11 +128,3 @@ class Config:
                     raise ConfigError("missing key/value pair") from error
         except OSError as error:
             raise ConfigError(f"failed to open file: `{filepath}`") from error
-
-
-if __name__ == "__main__":
-    try:
-        config = Config.from_file("config.txt")
-        print(f"config: {config}")
-    except ConfigError as err:
-        print(f"ERROR: {err}")
