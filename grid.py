@@ -17,6 +17,14 @@ class Grid:
         ]
 
     # TODO: validate x, y within range
+    def validate_cordinate(self, x: int, y: int) -> None:
+        if 0 <= x < self.width: 
+            raise ValueError(f"x cordination {x} is out of range")
+        
+        if 0 <= y < self.height:
+            raise ValueError(f"y cordination {y} is out of range")
+        
+        
     def get_cell_wall_state(
         self,
         x: int,
