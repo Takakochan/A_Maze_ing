@@ -1,31 +1,64 @@
-from mazegen.grid import Grid
+import random
+import sys
+
+from mazegen.cell import Cell
+from mazegen.cell_value import CellValue
+from mazegen.generators.basic import GeneratorBasic
+from mazegen.generators.dfs import GeneratorDFS
+from mazegen.grid import FortyTwoPatternError, Grid
+from mazegen.solvers.bfs import SolverBFS
 
 
-class MazeGenerator(Grid):
-    def generate(
+class MazeGenerator:
+    def __init__(
         self,
+        width: int,
+        height: int,
         entry: tuple[int, int],
         exit: tuple[int, int],  # noqa: A002
-        perfect: bool,  # noqa: FBT001
     ) -> None:
-        self._entry = entry
-        self._exit = exit
+        self.entry = Cell(entry[0], entry[1])
+        self.exit = Cell(exit[0], exit[1])
 
-    def solve(
+        self.grid = Grid(width, height)
+        self.grid.set_cell_value(self.entry, CellValue.ENTRY)
+        self.grid.set_cell_value(self.exit, CellValue.EXIT)
+
+        try:
+            self.grid.set_forty_two_pattern([self.entry, self.exit])
+        except FortyTwoPatternError as error:
+            print(
+                f"\033[91mcould not draw 42 pattern: {error}\033[0m",
+                file=sys.stderr,
+            )
+
+    def generate(
         self,
+        perfect: bool,  # noqa: FBT001
+        seed: int | None = None,
     ) -> None:
-        self._solution = None
+        random.seed(seed)
+
+        generator = GeneratorDFS if perfect else GeneratorBasic
+        generator.generate(self.grid)
+
+        self.grid.display()
+
+    def solve(self) -> None:
+        solver = SolverBFS
+        solver.solve(self.grid, self.entry, self.exit)
+
+        self.grid.display()
 
     def save(self, filename: str) -> None:
         with open(filename, "w", encoding="utf-8") as file:
-            for cell_list in self.get_cell_state_grid():
-                for cell in cell_list:
-                    file.write(cell.to_hex())
-                file.write("\n")
+            file.write(self.grid.into_file_format())
             file.write("\n")
-
-            file.write(f"{self._entry[0]},{self._entry[1]}\n")
-            file.write(f"{self._exit[0]},{self._exit[1]}\n")
+            file.write(self.entry.into_file_format())
+            file.write(self.exit.into_file_format())
 
             # TODO: write solution to output file
             file.write("<solution>\n")
+
+    def display(self) -> None:
+        self.grid.display()
