@@ -1,29 +1,9 @@
 """The cell state."""
 
 from dataclasses import dataclass
-from enum import Enum, StrEnum, auto
 from typing import Self
 
-
-class WallState(Enum):
-    """
-    The state of a wall.
-
-    Attributes:
-        open: the wall is open
-        closed: the wall is closed
-
-    """
-
-    open = 0
-    closed = 1
-
-
-class Direction(StrEnum):
-    north = auto()
-    east = auto()
-    south = auto()
-    west = auto()
+from mazegen.wall_state import WallState
 
 
 @dataclass
@@ -54,10 +34,10 @@ class CellState:
 
         """
         return cls(
-            WallState.open,
-            WallState.open,
-            WallState.open,
-            WallState.open,
+            WallState.OPEN,
+            WallState.OPEN,
+            WallState.OPEN,
+            WallState.OPEN,
         )
 
     @classmethod
@@ -70,10 +50,10 @@ class CellState:
 
         """
         return cls(
-            WallState.closed,
-            WallState.closed,
-            WallState.closed,
-            WallState.closed,
+            WallState.CLOSED,
+            WallState.CLOSED,
+            WallState.CLOSED,
+            WallState.CLOSED,
         )
 
     @classmethod
@@ -88,9 +68,10 @@ class CellState:
             A cell state.
 
         """
-        # TODO(ilclaass): handle invalid input
+
         if bits < 0 or bits > 0b1111:
             raise ValueError("bits must be a 4-bit int")
+
         north = WallState(bits & 1)
         east = WallState((bits >> 1) & 1)
         south = WallState((bits >> 2) & 1)
@@ -110,11 +91,17 @@ class CellState:
             A cell state.
 
         """
-        # TODO(ilclaass): handle invalid input
-        if len(character) != 1:
-            raise ValueError("Must be a single hex")
 
-        bits = int(character, 16)
+        if len(character) != 1:
+            raise ValueError("input string must be a single character")
+
+        try:
+            bits = int(character, 16)
+        except ValueError as error:
+            raise ValueError(
+                "character must be a hexadecimal integer",
+            ) from error
+
         return cls.from_4_bit_int(bits)
 
     def to_4_bit_int(self) -> int:
