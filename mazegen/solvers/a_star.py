@@ -4,8 +4,26 @@ from mazegen.solvers.base import Solver
 import heapq
 
 
-class SolverAStar(Solver):
-    def solve(self,
+class PriorityQue():
+    def __init__(self):
+        self._heap: List[Tuple[int, Cell]] = []
+    
+    def push(self, priority: int, cell: Cell) -> None:
+        """heappush adding to _heap list"""
+        heapq.heappush(self._heap, (priority, cell))
+    
+    def pop(self) -> Cell:
+        priority, cell = heapq.heappop(self._heap)
+        return cell
+
+    def is_empty(self)-> bool:
+        if len(self._heap) == 0:
+            return True
+        return False
+
+class SolverAstar(Solver):
+    def solve(
+        self,
         grid: Grid,
         entry: Cell,
         exit: Cell,  # noqa: A002
@@ -23,22 +41,19 @@ class SolverAStar(Solver):
             if (current.x, current.y) in closed_set: # 入っていたらもう見てる
                 continue
             closed_set.add((current.x, current.y))
-        #TODO 隣セルの処理
-        Grid.get_reachable_unmarked_neighbors(current)???
+            print(f"current: {current.x}, {current.y}")
+            print(f"neighbors: {grid.get_reachable_unmarked_neighbors(current)}")
+            print(f"g_score: {g_score}")
+            #TODO 隣セルの処理
+            for neighbor in grid.get_reachable_unmarked_neighbors(current):
+                temp = g_score[current.x, current.y] + 1 # because it is one step next
+                g_score[neighbor.x, neighbor.y] = temp
+                grid.set_parent(neighbor, current)
+                
+                f = f_score(temp, manhattan_heuristic(neighbor, exit))
+                open_set.push(f, neighbor)
+        
 
-class PriorityQue():
-    def __init__(self):
-        self._heap: List[Tuple[int, Cell]] = []
-    
-    def push(self, priority: int, cell: Cell) -> None:
-    
-    def pop(self) -> Cell:
-        return
-
-    def is_empty(self)-> bool:
-        if self._heap == 0:
-            return True
-        return False
 
 
 
@@ -48,6 +63,6 @@ def f_score(g_score: int, manhattan_heuristic: int) -> int:
 def manhattan_heuristic(current: Cell, exit: Cell) -> int:
     return abs(current.x - exit.x) + abs(current.y - exit.y)
 
-dict[tuple[int, int], int]
+
 
 
