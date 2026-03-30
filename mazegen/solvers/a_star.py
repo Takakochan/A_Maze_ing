@@ -2,18 +2,21 @@ from mazegen.cell import Cell
 from mazegen.grid import Grid
 from mazegen.solvers.base import Solver
 import heapq
+from mazegen.cell_value import CellValue
 
 
 class PriorityQue():
     def __init__(self):
         self._heap: List[Tuple[int, Cell]] = []
+        self.counter: int = 0
     
     def push(self, priority: int, cell: Cell) -> None:
         """heappush adding to _heap list"""
-        heapq.heappush(self._heap, (priority, cell))
+        heapq.heappush(self._heap, (priority, self.counter, cell))
+        self.counter += 1
     
     def pop(self) -> Cell:
-        priority, cell = heapq.heappop(self._heap)
+        _, _, cell = heapq.heappop(self._heap)
         return cell
 
     def is_empty(self)-> bool:
@@ -52,7 +55,23 @@ class SolverAstar(Solver):
                 
                 f = f_score(temp, manhattan_heuristic(neighbor, exit))
                 open_set.push(f, neighbor)
-        
+
+        current = exit
+
+        while current is not entry:
+            if current != exit:
+                grid.set_cell_value(current, CellValue.SOLUTION)
+
+            parent = grid.get_parent(current)
+            if parent is None:
+                break
+
+            current = parent
+
+            grid.display()
+
+        grid.reset_cell_markings()
+        grid.unset_parents()
 
 
 
