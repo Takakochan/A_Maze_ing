@@ -1,13 +1,13 @@
 import random
 import sys
 
+from mazegen.animation import GridDisplayer
 from mazegen.cell import Cell
 from mazegen.cell_value import CellValue
 from mazegen.generators.basic import GeneratorBasic
 from mazegen.generators.dfs import GeneratorDFS
-from mazegen.grid import FortyTwoPatternError, Grid
+from mazegen.grid import FortyTwoPatternError
 from mazegen.solvers.bfs import SolverBFS
-from mazegen.solvers.a_star import SolverAstar
 
 
 class MazeGenerator:
@@ -21,7 +21,7 @@ class MazeGenerator:
         self.entry = Cell(entry[0], entry[1])
         self.exit = Cell(exit[0], exit[1])
 
-        self.grid = Grid(width, height)
+        self.grid = GridDisplayer(width, height)
         self.grid.set_cell_value(self.entry, CellValue.ENTRY)
         self.grid.set_cell_value(self.exit, CellValue.EXIT)
 
@@ -40,14 +40,18 @@ class MazeGenerator:
     ) -> None:
         random.seed(seed)
 
+        self.grid.display()
+
         generator = GeneratorDFS if perfect else GeneratorBasic
-        generator.generate(self.grid)
+        generator().generate(self.grid)
 
         self.grid.display()
 
     def solve(self) -> None:
-        solver = SolverAstar()
-        solver.solve(self.grid, self.entry, self.exit)
+        self.grid.display()
+
+        solver = SolverBFS
+        solver().solve(self.grid, self.entry, self.exit)
 
         self.grid.display()
 
@@ -60,6 +64,3 @@ class MazeGenerator:
 
             # TODO: write solution to output file
             file.write("<solution>\n")
-
-    def display(self) -> None:
-        self.grid.display()

@@ -1,8 +1,10 @@
+from mazegen.animation import GridDisplayer
 from mazegen.generators.base import Generator
 from mazegen.generators.dfs import GeneratorDFS
-from mazegen.grid import Grid
 
 
 class GeneratorBasic(Generator):
-    def generate(grid: Grid) -> None:
-        GeneratorDFS.generate(grid)
+    def generate(self, grid: GridDisplayer) -> None:
+        self._foo = None
+
+        GeneratorDFS().generate(grid)

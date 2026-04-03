@@ -1,12 +1,14 @@
 import random
 
+from mazegen.animation import GridDisplayer
 from mazegen.cell import Cell
 from mazegen.generators.base import Generator
-from mazegen.grid import Grid
 
 
 class GeneratorDFS(Generator):
-    def generate(grid: Grid) -> None:
+    def generate(self, grid: GridDisplayer) -> None:
+        self._foo = None
+
         stack: list[Cell] = []
 
         edge = [
@@ -21,6 +23,8 @@ class GeneratorDFS(Generator):
         cell = random.choice(edge)
         grid.mark_cell(cell)
         stack.append(cell)
+
+        grid.display_cell(cell)
 
         while stack:
             current = stack[-1]
@@ -41,8 +45,6 @@ class GeneratorDFS(Generator):
             grid.mark_cell(neighbor)
             stack.append(neighbor)
 
-            grid.display()
+            grid.display_cell(neighbor)
 
         grid.reset_cell_markings()
-
-        grid.display()

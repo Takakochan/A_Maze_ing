@@ -1,14 +1,14 @@
 from abc import ABC, abstractmethod
 
+from mazegen.animation import GridDisplayer
 from mazegen.cell import Cell
-from mazegen.grid import Grid
 
 
 class Solver(ABC):
     @abstractmethod
     def solve(
         self,
-        grid: Grid,
+        grid: GridDisplayer,
         entry: Cell,
         exit: Cell,  # noqa: A002
     ) -> None:
