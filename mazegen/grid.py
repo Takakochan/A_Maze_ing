@@ -353,3 +353,10 @@ class Grid:
             ])
             + "\n"
         )
+
+    def get_wall_state(
+        self,
+        cell: Cell,
+        direction: Direction,
+    ) -> WallState:
+        return self._get_wall_state(cell, direction)
