@@ -1,12 +1,13 @@
-import random
 import sys
+from typing import Literal
 
-from mazegen.animation import GridDisplayer
 from mazegen.cell import Cell
 from mazegen.cell_value import CellValue
 from mazegen.generators.basic import GeneratorBasic
 from mazegen.generators.dfs import GeneratorDFS
-from mazegen.grid import FortyTwoPatternError
+from mazegen.grid import FortyTwoPatternError, Grid
+from mazegen.render.ascii_renderer import AsciiRenderer
+from mazegen.solvers.a_star import SolverAStar
 from mazegen.solvers.bfs import SolverBFS
 
 
@@ -21,7 +22,7 @@ class MazeGenerator:
         self.entry = Cell(entry[0], entry[1])
         self.exit = Cell(exit[0], exit[1])
 
-        self.grid = GridDisplayer(width, height)
+        self.grid = Grid(width, height)
         self.grid.set_cell_value(self.entry, CellValue.ENTRY)
         self.grid.set_cell_value(self.exit, CellValue.EXIT)
 
@@ -33,27 +34,36 @@ class MazeGenerator:
                 file=sys.stderr,
             )
 
+        self.renderer = AsciiRenderer()
+
+    def display(self) -> None:
+        self.renderer.display_grid(self.grid)
+
     def generate(
         self,
         perfect: bool,  # noqa: FBT001
         seed: int | None = None,
     ) -> None:
-        random.seed(seed)
+        generator = GeneratorDFS() if perfect else GeneratorBasic()
 
-        self.grid.display()
+        generator.generate(self.grid, self.renderer, seed)
 
-        generator = GeneratorDFS if perfect else GeneratorBasic
-        generator().generate(self.grid)
+    def solve(self, algorithm: Literal["BFS", "A*"] | None = None) -> None:
+        match algorithm:
+            case "BFS":
+                solver = SolverBFS()
+            case "A*":
+                solver = SolverAStar()
+            case None:
+                # fallback to BFS
+                solver = SolverBFS()
 
-        self.grid.display()
-
-    def solve(self) -> None:
-        self.grid.display()
-
-        solver = SolverBFS
-        solver().solve(self.grid, self.entry, self.exit)
-
-        self.grid.display()
+        self.solution = solver.solve(
+            self.grid,
+            self.entry,
+            self.exit,
+            self.renderer,
+        )
 
     def save(self, filename: str) -> None:
         with open(filename, "w", encoding="utf-8") as file:
@@ -61,6 +71,9 @@ class MazeGenerator:
             file.write("\n")
             file.write(self.entry.into_file_format())
             file.write(self.exit.into_file_format())
-
-            # TODO: write solution to output file
-            file.write("<solution>\n")
+            file.write(
+                "".join([
+                    direction.into_file_format() for direction in self.solution
+                ])
+                + "\n",
+            )
