@@ -6,7 +6,7 @@ from mazegen.render.base import Renderer
 from mazegen.solvers.base import Solver
 
 
-class SolverBFS(Solver):
+class SolverDFS(Solver):
     def solve(
         self,
         grid: Grid,
@@ -21,15 +21,16 @@ class SolverBFS(Solver):
         grid.unset_parents()
 
         solution: list[Direction] = []
-        queue: list[Cell] = []
-        queue.append(entry)
+        stack: list[Cell] = []
+        stack.append(entry)
 
         grid.mark_cell(entry)
         if animation:
             renderer.display_cell(grid, entry)
 
-        while queue:
-            current = queue.pop(0)
+        while stack:
+            current = stack.pop()
+
             if current == exit:
                 break
 
@@ -37,7 +38,7 @@ class SolverBFS(Solver):
                 grid.mark_cell(neighbor)
                 grid.set_parent(neighbor, current)
 
-                queue.append(neighbor)
+                stack.append(neighbor)
 
                 if animation:
                     renderer.display_cell(grid, neighbor)

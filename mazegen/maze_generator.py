@@ -1,14 +1,19 @@
 import sys
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from mazegen.cell import Cell
 from mazegen.cell_value import CellValue
 from mazegen.generators.basic import GeneratorBasic
+from mazegen.generators.imperfect import GeneratorImperfect
 from mazegen.generators.dfs import GeneratorDFS
 from mazegen.grid import FortyTwoPatternError, Grid
 from mazegen.render.ascii_renderer import AsciiRenderer
 from mazegen.solvers.a_star import SolverAStar
 from mazegen.solvers.bfs import SolverBFS
+from mazegen.solvers.dfs import SolverDFS
+
+if TYPE_CHECKING:
+    from mazegen.solvers.base import Solver
 
 
 class MazeGenerator:
@@ -18,6 +23,7 @@ class MazeGenerator:
         height: int,
         entry: tuple[int, int],
         exit: tuple[int, int],  # noqa: A002
+        animation_speed: int,
     ) -> None:
         self.entry = Cell(entry[0], entry[1])
         self.exit = Cell(exit[0], exit[1])
@@ -34,35 +40,47 @@ class MazeGenerator:
                 file=sys.stderr,
             )
 
-        self.renderer = AsciiRenderer()
+        self.renderer = AsciiRenderer(animation_speed)
 
     def display(self) -> None:
         self.renderer.display_grid(self.grid)
 
     def generate(
         self,
-        perfect: bool,  # noqa: FBT001
-        seed: int | None = None,
+        perfect: bool,
+        seed: int | None,
+        animation: bool,
     ) -> None:
-        generator = GeneratorDFS() if perfect else GeneratorBasic()
+        generator = GeneratorDFS() if perfect else GeneratorImperfect()
 
-        generator.generate(self.grid, self.renderer, seed)
+        self.seed = generator.generate(
+            self.grid,
+            seed,
+            self.renderer,
+            animation,
+        )
 
-    def solve(self, algorithm: Literal["BFS", "A*"] | None = None) -> None:
+    def solve(
+        self,
+        algorithm: Literal["DFS", "BFS", "A*"] | None,
+        animation: bool,
+    ) -> None:
+        solver: Solver = SolverBFS()
+
         match algorithm:
+            case "DFS":
+                solver = SolverDFS()
             case "BFS":
                 solver = SolverBFS()
             case "A*":
                 solver = SolverAStar()
-            case None:
-                # fallback to BFS
-                solver = SolverBFS()
 
         self.solution = solver.solve(
             self.grid,
             self.entry,
             self.exit,
             self.renderer,
+            animation,
         )
 
     def save(self, filename: str) -> None:

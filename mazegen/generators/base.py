@@ -9,7 +9,8 @@ class Generator(ABC):
     def generate(
         self,
         grid: Grid,
+        seed: int | None,
         renderer: Renderer,
-        seed: int | None = None,
-    ) -> None:
+        animation: bool,
+    ) -> int:
         pass

@@ -1,4 +1,5 @@
 import random
+import time
 
 from mazegen.cell import Cell
 from mazegen.generators.base import Generator
@@ -10,10 +11,14 @@ class GeneratorDFS(Generator):
     def generate(
         self,
         grid: Grid,
+        seed: int | None,
         renderer: Renderer,
-        seed: int | None = None,
-    ) -> None:
+        animation: bool
+    ) -> int:
         self._foo = None
+
+        if seed is None:
+            seed = time.time_ns()
 
         random.seed(seed)
 
@@ -32,7 +37,8 @@ class GeneratorDFS(Generator):
         grid.mark_cell(cell)
         stack.append(cell)
 
-        renderer.display_cell(grid, cell)
+        if animation:
+            renderer.display_cell(grid, cell)
 
         while stack:
             current = stack[-1]
@@ -53,6 +59,9 @@ class GeneratorDFS(Generator):
             grid.mark_cell(neighbor)
             stack.append(neighbor)
 
-            renderer.display_cell(grid, neighbor)
+            if animation:
+                renderer.display_cell(grid, neighbor)
 
         grid.reset_cell_markings()
+
+        return seed
