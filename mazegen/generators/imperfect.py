@@ -9,6 +9,7 @@ from mazegen.generators.dfs import GeneratorDFS
 from mazegen.grid import Grid
 from mazegen.render.base import Renderer
 from mazegen.wall_state import WallState
+from mazegen.cell_marking import CellMarking
 
 
 class GeneratorImperfect(Generator):
@@ -23,7 +24,7 @@ class GeneratorImperfect(Generator):
 		generator.generate(grid, seed, renderer, animation)
 		closed_walls = self._collect_closed_walls(grid)
 		self._open_random_walls(grid, renderer, closed_walls)
-		return GeneratorDFS().generate(grid, seed, renderer, animation)
+		return 0
 
 	def _collect_closed_walls(self, grid: Grid) -> list:
 		closed_walls = []
@@ -31,9 +32,11 @@ class GeneratorImperfect(Generator):
 			for y in range(grid.height):
 				cell = Cell(x, y)
 				if y < grid.height - 1 and grid.get_wall_state(cell, Direction.SOUTH) == WallState.CLOSED:
-					closed_walls.append((cell, Direction.SOUTH))
+					if (grid.get_cell_marking(cell) != CellMarking.MARKED and grid.get_cell_marking(Cell(x, y+1)) != CellMarking.MARKED):
+						closed_walls.append((cell, Direction.SOUTH))
 				if x > 0 and grid.get_wall_state(cell, Direction.WEST) == WallState.CLOSED:
-					closed_walls.append((cell, Direction.WEST))
+					if grid.get_cell_marking(cell) != CellMarking.MARKED and grid.get_cell_marking(Cell(x, y)) != CellMarking.MARKED:
+						closed_walls.append((cell, Direction.WEST))
 		return closed_walls
 
 	def _open_random_walls(
@@ -41,7 +44,7 @@ class GeneratorImperfect(Generator):
 			grid: Grid,
 			renderer: Renderer,
 			closed_walls: list,
-			ratio: float = 0.0,
+			ratio: float = 0.1,
 	) -> None:
 		count = max(1, int(len(closed_walls) * ratio))
 		chosen = random.sample(closed_walls, min(count, len(closed_walls)))
