@@ -62,6 +62,6 @@ class GeneratorDFS(Generator):
             if animation:
                 renderer.display_cell(grid, neighbor)
 
-        grid.reset_cell_markings()
+        # grid.reset_cell_markings()
 
         return seed
