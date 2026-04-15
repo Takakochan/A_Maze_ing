@@ -9,7 +9,8 @@ from mazegen import MazeGenerator
 
 class Event(StrEnum):
     GENERATE = "g"
-    SOLVE = "s"
+    SHOW_SOLUTION = "s"
+    HIDE_SOLUTION = "h"
     SAVE = "S"
     QUIT = "q"
 
@@ -27,23 +28,12 @@ class State(ABC):
 class GenerateState(State):
     @classmethod
     def from_config(cls, config: Config) -> Self:
-        maze_generator = MazeGenerator(
-            config.width,
-            config.height,
-            config.entry,
-            config.exit,
-            config.animation_speed,
-        )
+        maze_generator = MazeGenerator.from_config(config)
 
         if config.animation:
             maze_generator.display()
 
-        maze_generator.generate(
-            config.perfect,
-            config.seed,
-            config.animation,
-        )
-
+        maze_generator.generate(config.perfect, config.seed)
         maze_generator.display()
 
         print(f"Generated maze (seed: {maze_generator.seed})")
@@ -56,8 +46,10 @@ class GenerateState(State):
         match event:
             case Event.GENERATE:
                 return GenerateState.from_config(self.config)
-            case Event.SOLVE:
+            case Event.SHOW_SOLUTION:
                 return SolveState.from_generated(self)
+            case Event.HIDE_SOLUTION:
+                return self
             case Event.SAVE:
                 return self
             case Event.QUIT:
@@ -67,16 +59,12 @@ class GenerateState(State):
 class SolveState(State):
     @classmethod
     def from_generated(cls, generated: GenerateState) -> Self:
-        generated.maze_generator.solve(
-            generated.config.algorithm,
-            generated.config.animation,
-        )
-
+        generated.maze_generator.solve(generated.config.algorithm)
         generated.maze_generator.display()
 
         print(f"Solved maze (seed: {generated.maze_generator.seed})")
         print()
-        print("[g]enerate | [S]ave | [q]uit")
+        print("[g]enerate | [h]ide solution | [S]ave | [q]uit")
 
         return cls(generated.maze_generator, generated.config)
 
@@ -84,7 +72,25 @@ class SolveState(State):
         match event:
             case Event.GENERATE:
                 return GenerateState.from_config(self.config)
-            case Event.SOLVE:
+            case Event.SHOW_SOLUTION:
+                if not self.maze_generator.renderer.show_solution():
+                    return self
+
+                self.maze_generator.display()
+
+                print(f"Solved maze (seed: {self.maze_generator.seed})")
+                print()
+                print("[g]enerate | [h]ide solution | [S]ave | [q]uit")
+                return self
+            case Event.HIDE_SOLUTION:
+                if not self.maze_generator.renderer.hide_solution():
+                    return self
+
+                self.maze_generator.display()
+
+                print(f"Solved maze (seed: {self.maze_generator.seed})")
+                print()
+                print("[g]enerate | [s]how solution | [S]ave | [q]uit")
                 return self
             case Event.SAVE:
                 return SaveState.from_solved(self)
@@ -108,7 +114,9 @@ class SaveState(State):
         match event:
             case Event.GENERATE:
                 return GenerateState.from_config(self.config)
-            case Event.SOLVE:
+            case Event.SHOW_SOLUTION:
+                return self
+            case Event.HIDE_SOLUTION:
                 return self
             case Event.SAVE:
                 return self

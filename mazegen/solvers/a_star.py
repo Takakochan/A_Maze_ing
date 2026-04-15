@@ -12,10 +12,9 @@ class SolverAStar(Solver):
     def solve(
         self,
         grid: Grid,
-        entry: Cell,
-        exit: Cell,  # noqa: A002
+        src: Cell,
+        dest: Cell,
         renderer: Renderer,
-        animation: bool,
     ) -> list[Direction]:
         self._foo = None
 
@@ -23,36 +22,45 @@ class SolverAStar(Solver):
         grid.unset_parents()
 
         solution: list[Direction] = []
-        queue = PriorityQueue(exit)
-        queue.push(entry)
+        queue = PriorityQueue(dest)
+        queue.push(src, 0)
 
-        grid.mark_cell(entry)
-        if animation:
-            renderer.display_cell(grid, entry)
+        distance_from_src: dict[Cell, int] = {}
+        distance_from_src[src] = 0
+
+        grid.mark_cell(src)
+        if renderer.animate():
+            renderer.display_cell(grid, src)
 
         while not queue.is_empty():
             current = queue.pop()
             if current is None:
                 break
-            if current == exit:
+            if current == dest:
                 break
 
-            for neighbor in grid.get_reachable_unmarked_neighbors(current):
-                grid.mark_cell(neighbor)
+            for neighbor in grid.get_reachable_neighbors(current):
+                dist_old = distance_from_src.get(neighbor)
+                dist_new = distance_from_src[current] + 1
+
+                if dist_old is not None and dist_old <= dist_new:
+                    continue
+
+                distance_from_src[neighbor] = dist_new
+                queue.push(neighbor, dist_new)
                 grid.set_parent(neighbor, current)
 
-                queue.push(neighbor)
-
-                if animation:
+                grid.mark_cell(neighbor)
+                if renderer.animate():
                     renderer.display_cell(grid, neighbor)
 
-        current = exit
+        current = dest
 
-        while current is not entry:
-            if current != exit:
+        while current is not src:
+            if current != dest:
                 grid.set_cell_value(current, CellValue.SOLUTION)
 
-            if animation:
+            if renderer.animate():
                 renderer.display_cell(grid, current)
 
             parent = grid.get_parent(current)
@@ -71,13 +79,14 @@ class SolverAStar(Solver):
 
 
 class PriorityQueue:
-    def __init__(self, target: Cell) -> None:
+    def __init__(self, dest: Cell) -> None:
         self._heap: list[tuple[int, int, Cell]] = []
+        self._distance: dict[Cell, int] = {}
         self._counter: int = 0
-        self.target = target
+        self._dest = dest
 
-    def push(self, cell: Cell) -> None:
-        priority = cell.distance_to(self.target)
+    def push(self, cell: Cell, distance: int) -> None:
+        priority = distance + cell.distance_to(self._dest)
         heapq.heappush(self._heap, (priority, self._counter, cell))
         self._counter += 1
 
