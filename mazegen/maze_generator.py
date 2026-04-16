@@ -8,7 +8,7 @@ from mazegen.generators.imperfect import GeneratorImperfect
 from mazegen.generators.dfs import GeneratorDFS
 from mazegen.grid import FortyTwoPatternError, Grid
 from mazegen.render.ascii_renderer import AsciiRenderer
-from mazegen.solvers.a_star import SolverAStar
+from mazegen.solvers.astar2 import SolverAStar2
 from mazegen.solvers.bfs import SolverBFS
 from mazegen.solvers.dfs import SolverDFS
 
@@ -73,7 +73,7 @@ class MazeGenerator:
             case "BFS":
                 solver = SolverBFS()
             case "A*":
-                solver = SolverAStar()
+                solver = SolverAStar2()
 
         self.solution = solver.solve(
             self.grid,
