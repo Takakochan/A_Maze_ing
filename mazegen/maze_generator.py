@@ -9,12 +9,8 @@ from mazegen.generators.dfs import GeneratorDFS
 from mazegen.generators.imperfect import GeneratorImperfect
 from mazegen.grid import FortyTwoPatternError, Grid
 from mazegen.render.ascii_renderer import AsciiRenderer
-<<<<<<< HEAD
-from mazegen.solvers.astar2 import SolverAStar2
-=======
 from mazegen.render.base import Renderer
 from mazegen.solvers.a_star import SolverAStar
->>>>>>> c9fd4f41bc9482d34ffe9dfd0198e672631035cd
 from mazegen.solvers.bfs import SolverBFS
 from mazegen.solvers.dfs import SolverDFS
 
