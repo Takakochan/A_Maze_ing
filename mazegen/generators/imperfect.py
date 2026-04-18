@@ -46,14 +46,17 @@ class GeneratorImperfect(Generator):
         renderer: Renderer,
         closed_walls: list,
     ) -> None:
-        area_a = [(cell, direction) for cell, direction in closed_walls if 0 < cell.x < grid.width/2 and 0 < cell.y < grid.height/2]
-        area_b = [(cell, direction) for cell, direction in closed_walls if grid.width/2 < cell.x < grid.width and grid.height/2 < cell.y < grid.height]
-        area_c = [(cell, direction) for cell, direction in closed_walls if 0 < cell.x < grid.width/2 and grid.height/2 < cell.y < grid.height]
-        area_d = [(cell, direction) for cell, direction in closed_walls if grid.width/2 < cell.x < grid.width and 0 < cell.y < grid.height/2]
+        mid_x = grid.width // 2
+        mid_y = grid.height // 2
+        area_a = [(cell, direction) for cell, direction in closed_walls if 0 < cell.x <= mid_x and 0 < cell.y <= mid_y]
+        area_b = [(cell, direction) for cell, direction in closed_walls if mid_x < cell.x < grid.width and mid_y < cell.y < grid.height]
+        area_c = [(cell, direction) for cell, direction in closed_walls if 0 < cell.x <= mid_x and mid_y < cell.y < grid.height]
+        area_d = [(cell, direction) for cell, direction in closed_walls if mid_x < cell.x < grid.width and 0 < cell.y <= mid_y]
         areas = [area_a, area_b, area_c, area_d]
         for a in areas:
-            chosen = random.sample(a, 1)
-            for cell, direction in chosen:
-                grid.open_wall(cell, direction)
-                if renderer.animate():
-                    renderer.display_cell(grid, cell)
+            if not a:
+                continue
+            cell, direction = random.choice(a)
+            grid.open_wall(cell, direction)
+            if renderer.animate():
+                renderer.display_cell(grid, cell)

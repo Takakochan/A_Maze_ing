@@ -67,7 +67,7 @@ class MazeGenerator:
             case "BFS":
                 solver = SolverBFS()
             case "A*":
-                solver = SolverAStar2()
+                solver = SolverAStar()
 
         self.solution = solver.solve(
             self.grid,

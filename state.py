@@ -13,6 +13,7 @@ class Event(StrEnum):
     HIDE_SOLUTION = "h"
     SAVE = "S"
     QUIT = "q"
+    COLORS = "c"
 
 
 @dataclass
@@ -21,7 +22,7 @@ class State(ABC):
     config: Config
 
     @abstractmethod
-    def on_event(self, event: Event) -> Self:
+    def on_event(self, event: Event) -> "State":
         pass
 
 
@@ -38,7 +39,7 @@ class GenerateState(State):
 
         print(f"Generated maze (seed: {maze_generator.seed})")
         print()
-        print("[g]enerate | [s]olve | [q]uit")
+        print("[g]enerate | [s]olve | [q]uit | [c]olor")
 
         return cls(maze_generator, config)
 
@@ -53,6 +54,12 @@ class GenerateState(State):
             case Event.SAVE:
                 return self
             case Event.QUIT:
+                return self
+            case Event.COLORS:
+                self.maze_generator.renderer.randomize_colors()
+                self.maze_generator.display() 
+                return self
+            case _:
                 return self
 
 
@@ -96,6 +103,12 @@ class SolveState(State):
                 return SaveState.from_solved(self)
             case Event.QUIT:
                 return self
+            case Event.COLORS:
+                self.maze_generator.renderer.randomize_colors()
+                self.maze_generator.display()
+                return self
+            case _:
+                return self
 
 
 class SaveState(State):
@@ -121,4 +134,10 @@ class SaveState(State):
             case Event.SAVE:
                 return self
             case Event.QUIT:
+                return self
+            case Event.COLORS:
+                self.maze_generator.renderer.randomize_colors()
+                self.maze_generator.display() 
+                return self
+            case _:
                 return self

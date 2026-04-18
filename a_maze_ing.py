@@ -30,7 +30,8 @@ def main() -> None:
     try:
         config = Config.from_file(sys.argv[1])
     except ConfigError as error:
-        raise error
+        print(f"Error: {error}")
+        sys.exit(1)
 
     with NonBlockingInput():
         state = GenerateState.from_config(config)

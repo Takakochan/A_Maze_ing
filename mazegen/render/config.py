@@ -30,3 +30,8 @@ class RenderConfig:
             config.solution_color,
             config.animation_color,
         )
+
+    def randomize(self) -> None:
+        self.wall_color = Color.random()
+        self.animation_color = Color.random()
+        self.forty_two_color = Color.random()
