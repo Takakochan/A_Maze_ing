@@ -41,5 +41,5 @@ class RenderConfig:
             self.exit_color,
             self.forty_two_color,
             self.solution_color,
-            self.animation_color
+            self.animation_color,
         ) = colors

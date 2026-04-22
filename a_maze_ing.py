@@ -6,7 +6,7 @@ import termios
 from types import TracebackType
 
 from config import Config, ConfigError
-from state import Event, GenerateState
+from state import Event, GenerateState, State
 
 
 class NonBlockingInput:
@@ -24,17 +24,18 @@ class NonBlockingInput:
         _traceback: TracebackType | None,
     ) -> bool | None:
         termios.tcsetattr(sys.stdin, termios.TCSANOW, self._old)
+        return None
 
 
 def main() -> None:
     try:
         config = Config.from_file(sys.argv[1])
     except ConfigError as error:
-        print(f"Error: {error}")
+        print(f"Error {error}")
         sys.exit(1)
 
     with NonBlockingInput():
-        state = GenerateState.from_config(config)
+        state: State = GenerateState.from_config(config)
 
         while True:
             read_fd, _, _ = select.select([sys.stdin], [], [], 0)

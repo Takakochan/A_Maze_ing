@@ -1,7 +1,6 @@
 import random
 import time
 
-from mazegen.cell import Cell
 from mazegen.generators.base import Generator
 from mazegen.generators.dfs import GeneratorDFS
 from mazegen.grid import Grid
@@ -48,10 +47,15 @@ class GeneratorImperfect(Generator):
     ) -> None:
         mid_x = grid.width // 2
         mid_y = grid.height // 2
-        area_a = [(cell, direction) for cell, direction in closed_walls if 0 < cell.x <= mid_x and 0 < cell.y <= mid_y]
-        area_b = [(cell, direction) for cell, direction in closed_walls if mid_x < cell.x < grid.width and mid_y < cell.y < grid.height]
-        area_c = [(cell, direction) for cell, direction in closed_walls if 0 < cell.x <= mid_x and mid_y < cell.y < grid.height]
-        area_d = [(cell, direction) for cell, direction in closed_walls if mid_x < cell.x < grid.width and 0 < cell.y <= mid_y]
+        area_a = [(cell, direction) for cell, direction in closed_walls
+                  if 0 < cell.x <= mid_x and 0 < cell.y <= mid_y]
+        area_b = [(cell, direction) for cell, direction in closed_walls
+                  if mid_x < cell.x < grid.width
+                  and mid_y < cell.y < grid.height]
+        area_c = [(cell, direction) for cell, direction in closed_walls
+                  if 0 < cell.x <= mid_x and mid_y < cell.y < grid.height]
+        area_d = [(cell, direction) for cell, direction in closed_walls
+                  if mid_x < cell.x < grid.width and 0 < cell.y <= mid_y]
         areas = [area_a, area_b, area_c, area_d]
         for a in areas:
             if not a:

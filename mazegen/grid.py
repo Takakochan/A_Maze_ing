@@ -268,20 +268,6 @@ class Grid:
             if self.get_cell_marking(neighbor) == CellMarking.UNMARKED
         ]
 
-    def get_reachable_neighbors(self, cell: Cell) -> list[Cell]:
-        neighbors = []
-
-        for neighbor in self._get_neighbor_cells(cell):
-            try:
-                direction = cell.get_direction_to_neighbor(neighbor)
-            except RuntimeError:
-                continue
-
-            if self.get_wall_state(cell, direction) is WallState.OPEN:
-                neighbors.append(neighbor)
-
-        return neighbors
-
     def get_reachable_unmarked_neighbors(self, cell: Cell) -> list[Cell]:
         return [
             neighbor
@@ -352,24 +338,23 @@ class Grid:
         )
 
     def get_collect_closed_walls(self) -> list:
-        closed_walls = [
+        closed_walls_south = [
             (Cell(x, y), Direction.SOUTH)
             for x in range(self.width)
-            for y in range(self.height)
-            if y < self.height - 1
-            and self.get_wall_state(Cell(x, y), Direction.SOUTH)
+            for y in range(self.height - 1)
+            if self.get_wall_state(Cell(x, y), Direction.SOUTH)
             == WallState.CLOSED
             and self.get_cell_value(Cell(x, y + 1)) != CellValue.FORTY_TWO
             and self.get_cell_value(Cell(x, y)) != CellValue.FORTY_TWO
         ]
-        closed_walls = [
+        closed_walls_west = [
             (Cell(x, y), Direction.WEST)
             for x in range(self.width)
             for y in range(self.height)
-            if x > 0
-            and self.get_wall_state(Cell(x, y), Direction.WEST)
+            if self.get_wall_state(Cell(x, y), Direction.EAST)
             == WallState.CLOSED
-            and self.get_cell_value(Cell(x - 1, y)) != CellValue.FORTY_TWO
+            and self.get_cell_value(Cell(x + 1, y)) != CellValue.FORTY_TWO
             and self.get_cell_value(Cell(x, y)) != CellValue.FORTY_TWO
         ]
+        closed_walls = closed_walls_south + closed_walls_west
         return closed_walls

@@ -16,13 +16,13 @@ class Event(StrEnum):
     COLORS = "c"
 
 
-@dataclass
+@dataclass 
 class State(ABC):
     maze_generator: MazeGenerator
     config: Config
 
     @abstractmethod
-    def on_event(self, event: Event) -> "State":
+    def on_event(self, event: Event) -> Self:
         pass
 
 
@@ -103,7 +103,7 @@ class SolveState(State):
             case Event.QUIT:
                 return self
             case Event.COLORS:
-                self.maze_generator.renderer.random_color(self.maze_generator.grid)
+                self.maze_generator.renderer.ramdom_color(self.maze_generator.grid)
                 return self
             case _:
                 return self
@@ -136,5 +136,4 @@ class SaveState(State):
             case Event.COLORS:
                 self.maze_generator.renderer.random_color(self.maze_generator.grid)
                 return self
-            case _:
-                return self
+ 
