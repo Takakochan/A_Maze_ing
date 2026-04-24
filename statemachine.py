@@ -89,21 +89,32 @@ sm: StateMachine[MazeState, Event, MazeContext] = StateMachine()
 
 
 @sm.transition(MazeState.GENERATE, Event.GENERATE, MazeState.GENERATE)
+@sm.transition(MazeState.SOLVE, Event.GENERATE, MazeState.GENERATE)
+@sm.transition(MazeState.SAVE, Event.GENERATE, MazeState.GENERATE)
 def do_generate(ctx: MazeContext) -> None:
     ctx.maze_generator = MazeGenerator.from_config(ctx.config)
     ctx.maze_generator.generate(ctx.config.perfect, ctx.config.seed)
     ctx.maze_generator.display()
+    print(f"Generated maze (seed: {ctx.maze_generator.seed})")
+    print()
+    print("[g]enerate | [s]olve | [q]uit | [c]olor")
 
 
 @sm.transition(MazeState.GENERATE, Event.SHOW_SOLUTION, MazeState.SOLVE)
 def do_solve(ctx: MazeContext) -> None:
     ctx.maze_generator.solve(ctx.config.algorithm)
     ctx.maze_generator.display()
+    print(f"Generated maze (seed: {ctx.maze_generator.seed})")
+    print()
+    print("[g]enerate | [s]olve | [q]uit | [c]olor")
 
 
 @sm.transition(MazeState.SOLVE, Event.SAVE, MazeState.SAVE)
 def do_save(ctx: MazeContext) -> None:
     ctx.maze_generator.save(ctx.config.output_file)
+    print(f"Generated maze (seed: {ctx.maze_generator.seed})")
+    print()
+    print("[g]enerate | [s]olve | [q]uit | [c]olor")
 
 
 @sm.transition(MazeState.SOLVE, Event.HIDE_SOLUTION, MazeState.SOLVE)

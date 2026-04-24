@@ -7,7 +7,7 @@ from types import TracebackType
 
 from config import Config, ConfigError
 # from state import Event, GenerateState, State
-from statemachine import sm, Event, MazeContext, MazeGenerator, MazeState
+from statemachine import sm, Event, MazeContext, MazeGenerator, MazeState, InvalidTransition
 
 
 class NonBlockingInput:
@@ -60,8 +60,10 @@ def main() -> None:
                 break
 
             # state = state.on_event(event)
-            current_state = sm.handle(ctx, current_state, event)
-
+            try:
+                current_state = sm.handle(ctx, current_state, event)
+            except InvalidTransition:
+                continue
 
 
 if __name__ == "__main__":
