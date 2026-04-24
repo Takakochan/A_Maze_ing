@@ -6,7 +6,8 @@ import termios
 from types import TracebackType
 
 from config import Config, ConfigError
-from state import Event, GenerateState, State
+# from state import Event, GenerateState, State
+from statemachine import sm, Event, MazeContext, MazeGenerator, MazeState
 
 
 class NonBlockingInput:
@@ -35,8 +36,11 @@ def main() -> None:
         sys.exit(1)
 
     with NonBlockingInput():
-        state: State = GenerateState.from_config(config)
-
+        # state: State = GenerateState.from_config(config)
+        ctx = MazeContext(MazeGenerator.from_config(config), config)
+        ctx.maze_generator.generate(config.perfect, config.seed)
+        ctx.maze_generator.display()
+        current_state = MazeState.GENERATE
         while True:
             read_fd, _, _ = select.select([sys.stdin], [], [], 0)
             if not read_fd:
@@ -55,7 +59,9 @@ def main() -> None:
             if event is Event.QUIT:
                 break
 
-            state = state.on_event(event)
+            # state = state.on_event(event)
+            current_state = sm.handle(ctx, current_state, event)
+
 
 
 if __name__ == "__main__":

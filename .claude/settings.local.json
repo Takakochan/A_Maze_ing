@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(grep -E \"\\\\.py$|^d\")"
+      "Bash(grep -E \"\\\\.py$|^d\")",
+      "WebFetch(domain:github.com)"
     ]
   }
 }
